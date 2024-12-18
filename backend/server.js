@@ -5,6 +5,8 @@ import connectDB from './config/mongodb.js';
 import connectCloudinary from './config/cloudinary.js';
 import userRouter from './routes/userRoute.js';
 import productRouter from './routes/productRoute.js';
+import cartRouter from './routes/cartRoute.js';
+
 
 // App Config
 const app = express();
@@ -27,8 +29,22 @@ app.get('/', (req, res) => {
 });
 
 // Add endpoint for user routes
-app.use('/api/user', userRouter);
-app.use('/api/product', productRouter)
+app.use('/api/user',userRouter)
+app.use('/api/product',productRouter)
+app.use('/api/cart',cartRouter)
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+const statusCode = err.statusCode || 500;
+const message = err.message || 'Internal Server Error'
+return res.statusCode(statusCode).json({
+  success: false,
+  message,
+  statusCode,
+});
+
+});
+//
 
 
 

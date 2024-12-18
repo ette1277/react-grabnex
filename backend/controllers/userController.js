@@ -1,5 +1,5 @@
 import validator from 'validator';  // Correct import syntax for validator
-import bcrypt from 'bcrypt';
+import bcryptjs from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import userModel from "../models/userModel.js";
 
@@ -66,8 +66,8 @@ const registerUser = async (req, res) => {
     }
 
     // Hash the password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const salt = await bcryptjs.genSalt(10);
+    const hashedPassword = await bcryptjs.hash(password, salt);
 
     // Create new user
     const newUser = new userModel({
@@ -75,6 +75,7 @@ const registerUser = async (req, res) => {
       email,
       password: hashedPassword
     });
+
 
     // Save user to the database
     const user = await newUser.save();
@@ -85,7 +86,8 @@ const registerUser = async (req, res) => {
 
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ success: false, message: "Server error", error: error.message });
+    return res.status(500).json({
+       success: false, message: "Server error", error: error.message });
   }
 };
 
@@ -107,5 +109,7 @@ const adminLogin = async (req, res) => {
     }
   
 };
+
+
 
 export { loginUser, registerUser, adminLogin };

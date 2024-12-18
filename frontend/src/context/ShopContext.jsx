@@ -63,29 +63,28 @@ const ShopContextProvider = (props) => {
   
 
   const getCartCount = () => {
-    let totalCount = 0;
+    let count = 0;
 
-    for (const itemId in cartItems) {
-        if (!cartItems.hasOwnProperty(itemId)) continue; // Safeguard for unexpected inherited properties
-        const colors = cartItems[itemId];
-        
+    for (const productId in cartItems) {
+        const colors = cartItems[productId]; // Assumed structure: itemId -> color -> size
         for (const color in colors) {
-            if (!colors.hasOwnProperty(color)) continue; // Safeguard for unexpected inherited properties
+            if (!colors.hasOwnProperty(color)) continue; // Safeguard for unexpected properties
+
             const sizes = colors[color];
-            
             for (const size in sizes) {
-                if (!sizes.hasOwnProperty(size)) continue; // Safeguard for unexpected inherited properties
-                
-                // Ensure the count is a valid number and add to totalCount
+                if (!sizes.hasOwnProperty(size)) continue; // Safeguard for unexpected properties
+
                 const quantity = sizes[size];
-                if (typeof quantity === 'number' && !isNaN(quantity) && quantity > 0) {
-                    totalCount += quantity;
+                // Increment count by quantity, but only if quantity is valid
+                if (typeof quantity === 'number' && quantity > 0) {
+                    count += quantity;
                 }
             }
         }
     }
 
-    return totalCount;
+    return count;
+   
 };
 
 

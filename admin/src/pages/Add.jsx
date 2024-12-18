@@ -24,6 +24,27 @@ const Add = ({ token }) => {
   const [customColour, setCustomColour] = useState("");
   const [stock, setStock] = useState(0);
 
+  // New function to handle sizes and colors input
+  const handleInput = (type, value) => {
+    if (type === 'sizes') {
+      if (value) {
+        setSizes(prev => prev.includes(value) ? prev.filter(item => item !== value) : [...prev, value]);
+        return value;
+      } else {
+        return '';
+      }
+    }
+
+    if (type === 'colours') {
+      if (value) {
+        setColours(prev => prev.includes(value) ? prev.filter(item => item !== value) : [...prev, value]);
+        return value;
+      } else {
+        return '';
+      }
+    }
+  };
+
   const onSubmitHandler = async (e) => {
     e.preventDefault();
 
@@ -44,7 +65,11 @@ const Add = ({ token }) => {
       image3 && formData.append("image3", image3);
       image4 && formData.append("image4", image4);
 
-      const response = await axios.post(backendUrl + "/api/product/add", formData, { headers: { token } });
+      const response = await axios.post(`${backendUrl}/api/product/add`, formData, {
+        headers: { token }, });
+
+    
+    
 
       if (response.data.success) {
         toast.success(response.data.message);
@@ -157,7 +182,7 @@ const Add = ({ token }) => {
           <p className='mb-2'>Product Sizes</p>
           <div className='flex gap-3'>
             {['S', 'M', 'L', 'XL', 'XXL'].map(size => (
-              <div key={size} onClick={() => setSizes(prev => prev.includes(size) ? prev.filter(item => item !== size) : [...prev, size])}>
+              <div key={size} onClick={() => handleInput('sizes', size)}>
                 <p className={`${sizes.includes(size) ? "bg-pink-100" : "bg-slate-200"} px-3 py-1 cursor-pointer`}>{size}</p>
               </div>
             ))}
@@ -175,7 +200,7 @@ const Add = ({ token }) => {
           <p className='mb-2'>Product Colours</p>
           <div className='flex gap-3'>
             {['Red', 'Blue', 'Green', 'Yellow', 'Black'].map(color => (
-              <div key={color} onClick={() => setColours(prev => prev.includes(color) ? prev.filter(item => item !== color) : [...prev, color])}>
+              <div key={color} onClick={() => handleInput('colours', color)}>
                 <p className={`${colours.includes(color) ? "bg-pink-100" : "bg-slate-200"} px-3 py-1 cursor-pointer`}>{color}</p>
               </div>
             ))}
