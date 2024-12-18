@@ -1,9 +1,12 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useState , useEffect} from "react";
 import { useNavigate } from 'react-router-dom';
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import cloneDeep from 'lodash/cloneDeep';
+import "react-toastify/dist/ReactToastify.css"
 import axios from 'axios'
+import { useCallback } from "react";    
+
+
+
 
 
 // Create the context
@@ -13,11 +16,12 @@ export const ShopContext = createContext();
 const ShopContextProvider = (props) => {
   const currency = '$';
   const delivery_fee = 10;
-  const backendUrl = import.meta.env.VITE_BACKEND_URL
+   const backendUrl = import.meta.env.VITE_BACKEND_URL
   const [search, setSearch] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [cartItems, setCartItems] = useState({});
   const [products, setProducts] = useState([]);
+  const [token, setToken] = useState('');
   const navigate = useNavigate();
 
   
@@ -29,7 +33,7 @@ const ShopContextProvider = (props) => {
       }
   
       // Create a deep copy of cartItems to avoid direct mutation
-      let cartData = cloneDeep(cartItems);
+      let cartData = structuredClone(cartItems);
   
       // Check if the item already exists in the cart
       if (!cartData[itemId]) {
@@ -88,7 +92,7 @@ const ShopContextProvider = (props) => {
 
 const updateQuantity = async (itemId, size, color, quantity) => {
   // Create a deep copy of cartItems to avoid direct mutation
-  let cartData = cloneDeep(cartItems);
+  let cartData = structuredClone(cartItems);
 
   // Ensure itemId exists in cartData, otherwise initialize it
   if (!cartData[itemId]) {
@@ -107,6 +111,12 @@ const updateQuantity = async (itemId, size, color, quantity) => {
   setCartItems(cartData);
 };
     
+useEffect(() => {
+    getProductsData();
+    if (token) {
+        getUserCart(token);
+    }
+}, [token]);
 
   
 
@@ -140,41 +150,52 @@ const getCartAmount = () => {
   return totalAmount;
 };
 
-const getProductsData = async () => {
+const getProductsData = useCallback(async () => {
     try {
-
-        const response = await axios.get(backendUrl + '/api/product/list')
+        const response = await axios.get(`${backendUrl}/api/product/list`);
         if (response.data.success) {
-            setProducts(response.data.products.reverse())
+            setProducts(response.data.products.reverse());
         } else {
-            toast.error(response.data.message)
+            toast.error(response.data.message);
         }
-
     } catch (error) {
-        console.log(error)
-        toast.error(error.message)
+        console.log(error);
+        toast.error(error.message);
     }
-}
+}, [backendUrl]);
+
+useEffect(() => {
+    getProductsData();
+    if (token) {
+        getUserCart(token);
+    }
+}, [getProductsData, token]);
 
 
-const getUserCart = async ( token ) => {
+
+
+
+
+const getUserCart = async (token) => {
     try {
-        
-        const response = await axios.post(backendUrl + '/api/cart/get',{},{headers:{token}})
+        const response = await axios.post(`${backendUrl}/api/cart/get  `, {}, { headers: { token } });
         if (response.data.success) {
-            setCartItems(response.data.cartData)
+            setCartItems(response.data.cartData);
+        } else {
+            toast.error(response.data.message || 'Failed to fetch cart data');
         }
     } catch (error) {
-        console.log(error)
-        toast.error(error.message)
+        console.log(error);
+        toast.error(error.message);
+        if (error.response?.status === 401) {
+            setToken(''); // Clear invalid token
+            navigate('/login'); // Redirect to login
+        }
     }
-}
+};
+  
 
-
-
-            useEffect(() => {
-                getProductsData()
-            }, [])
+  
 
 
 
@@ -193,8 +214,12 @@ const getUserCart = async ( token ) => {
     updateQuantity,
     getCartAmount,
     navigate,
-    backendUrl
+    backendUrl,
+    setToken,
+    token
   };
+
+  
 
   return (
     <ShopContext.Provider value={value}>
