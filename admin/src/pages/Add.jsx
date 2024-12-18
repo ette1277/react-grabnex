@@ -14,10 +14,15 @@ const Add = ({ token }) => {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("Men");
+  const [customCategory, setCustomCategory] = useState("");
   const [subCategory, setSubCategory] = useState("Topwear");
+  const [customSubCategory, setCustomSubCategory] = useState("");
   const [bestseller, setBestseller] = useState(false);
   const [sizes, setSizes] = useState([]);
+  const [customSize, setCustomSize] = useState("");
   const [colours, setColours] = useState([]);
+  const [customColour, setCustomColour] = useState("");
+  const [stock, setStock] = useState(0);
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
@@ -27,11 +32,12 @@ const Add = ({ token }) => {
       formData.append("name", name);
       formData.append("description", description);
       formData.append("price", price);
-      formData.append("category", category);
-      formData.append("subCategory", subCategory);
+      formData.append("category", customCategory || category);
+      formData.append("subCategory", customSubCategory || subCategory);
       formData.append("bestseller", bestseller);
-      formData.append("sizes", JSON.stringify(sizes));
-      formData.append("colours", JSON.stringify(colours)); // Corrected to handle multiple colors as array
+      formData.append("sizes", JSON.stringify(customSize ? [...sizes, customSize] : sizes));
+      formData.append("colours", JSON.stringify(customColour ? [...colours, customColour] : colours));
+      formData.append("stock", stock);
 
       image1 && formData.append("image1", image1);
       image2 && formData.append("image2", image2);
@@ -42,7 +48,6 @@ const Add = ({ token }) => {
 
       if (response.data.success) {
         toast.success(response.data.message);
-        // Reset all states after successful submission
         setName('');
         setDescription('');
         setImage1(false);
@@ -51,10 +56,15 @@ const Add = ({ token }) => {
         setImage4(false);
         setPrice('');
         setCategory('Men');
+        setCustomCategory('');
         setSubCategory('Topwear');
+        setCustomSubCategory('');
         setBestseller(false);
         setSizes([]);
+        setCustomSize('');
         setColours([]);
+        setCustomColour('');
+        setStock(0);
       } else {
         toast.error(response.data.message);
       }
@@ -100,69 +110,84 @@ const Add = ({ token }) => {
         </div>
 
         <div className='flex flex-col sm:flex-row gap-2 w-full sm:gap-8'>
-
             <div>
               <p className='mb-2'>Product category</p>
-              <select onChange={(e) => setCategory(e.target.value)} className='w-full px-3 py-2'>
+              <select onChange={(e) => setCategory(e.target.value)} value={category} className='w-full px-3 py-2'>
                   <option value="Men">Men</option>
                   <option value="Women">Women</option>
                   <option value="Kids">Kids</option>
               </select>
+              <input 
+                type="text" 
+                placeholder="Add custom category" 
+                className='w-full px-3 py-2 mt-2' 
+                value={customCategory} 
+                onChange={(e) => setCustomCategory(e.target.value)}
+              />
             </div>
 
             <div>
               <p className='mb-2'>Sub category</p>
-              <select onChange={(e) => setSubCategory(e.target.value)} className='w-full px-3 py-2'>
+              <select onChange={(e) => setSubCategory(e.target.value)} value={subCategory} className='w-full px-3 py-2'>
                   <option value="Topwear">Topwear</option>
                   <option value="Bottomwear">Bottomwear</option>
                   <option value="Winterwear">Winterwear</option>
               </select>
+              <input 
+                type="text" 
+                placeholder="Add custom sub-category" 
+                className='w-full px-3 py-2 mt-2' 
+                value={customSubCategory} 
+                onChange={(e) => setCustomSubCategory(e.target.value)}
+              />
             </div>
 
             <div>
               <p className='mb-2'>Product Price</p>
               <input onChange={(e) => setPrice(e.target.value)} value={price} className='w-full px-3 py-2 sm:w-[120px]' type="Number" placeholder='25' />
             </div>
+        </div>
 
+        <div>
+          <p className='mb-2'>Product Stock</p>
+          <input onChange={(e) => setStock(e.target.value)} value={stock} className='w-full px-3 py-2 sm:w-[120px]' type="Number" placeholder='0' required />
         </div>
 
         <div>
           <p className='mb-2'>Product Sizes</p>
           <div className='flex gap-3'>
-            <div onClick={()=>setSizes(prev => prev.includes("S") ? prev.filter( item => item !== "S") : [...prev,"S"])}>
-              <p className={`${sizes.includes("S") ? "bg-pink-100" : "bg-slate-200" } px-3 py-1 cursor-pointer`}>S</p>
-            </div>
-            
-            <div onClick={()=>setSizes(prev => prev.includes("M") ? prev.filter( item => item !== "M") : [...prev,"M"])}>
-              <p className={`${sizes.includes("M") ? "bg-pink-100" : "bg-slate-200" } px-3 py-1 cursor-pointer`}>M</p>
-            </div>
-
-            <div onClick={()=>setSizes(prev => prev.includes("L") ? prev.filter( item => item !== "L") : [...prev,"L"])}>
-              <p className={`${sizes.includes("L") ? "bg-pink-100" : "bg-slate-200" } px-3 py-1 cursor-pointer`}>L</p>
-            </div>
-
-            <div onClick={()=>setSizes(prev => prev.includes("XL") ? prev.filter( item => item !== "XL") : [...prev,"XL"])}>
-              <p className={`${sizes.includes("XL") ? "bg-pink-100" : "bg-slate-200" } px-3 py-1 cursor-pointer`}>XL</p>
-            </div>
-
-            <div onClick={()=>setSizes(prev => prev.includes("XXL") ? prev.filter( item => item !== "XXL") : [...prev,"XXL"])}>
-              <p className={`${sizes.includes("XXL") ? "bg-pink-100" : "bg-slate-200" } px-3 py-1 cursor-pointer`}>XXL</p>
-            </div>
+            {['S', 'M', 'L', 'XL', 'XXL'].map(size => (
+              <div key={size} onClick={() => setSizes(prev => prev.includes(size) ? prev.filter(item => item !== size) : [...prev, size])}>
+                <p className={`${sizes.includes(size) ? "bg-pink-100" : "bg-slate-200"} px-3 py-1 cursor-pointer`}>{size}</p>
+              </div>
+            ))}
           </div>
+          <input 
+            type="text" 
+            placeholder="Add custom size" 
+            className='w-full px-3 py-2 mt-2' 
+            value={customSize} 
+            onChange={(e) => setCustomSize(e.target.value)}
+          />
         </div>
 
-
-        {/* Colours */}
-      <div>
-        <p className='mb-2'>Product Colours</p>
-        <div className='flex gap-3'>
-          {['Red', 'Blue', 'Green', 'Yellow', 'Black'].map(color => (
-            <div key={color} onClick={() => setColours(prev => prev.includes(color) ? prev.filter(item => item !== color) : [...prev, color])}>
-              <p className={`${colours.includes(color) ? "bg-pink-100" : "bg-slate-200"} px-3 py-1 cursor-pointer`}>{color}</p>
-            </div>
-          ))}
+        <div>
+          <p className='mb-2'>Product Colours</p>
+          <div className='flex gap-3'>
+            {['Red', 'Blue', 'Green', 'Yellow', 'Black'].map(color => (
+              <div key={color} onClick={() => setColours(prev => prev.includes(color) ? prev.filter(item => item !== color) : [...prev, color])}>
+                <p className={`${colours.includes(color) ? "bg-pink-100" : "bg-slate-200"} px-3 py-1 cursor-pointer`}>{color}</p>
+              </div>
+            ))}
+          </div>
+          <input 
+            type="text" 
+            placeholder="Add custom colour" 
+            className='w-full px-3 py-2 mt-2' 
+            value={customColour} 
+            onChange={(e) => setCustomColour(e.target.value)}
+          />
         </div>
-      </div>
 
         <div className='flex gap-2 mt-2'>
           <input onChange={() => setBestseller(prev => !prev)} checked={bestseller} type="checkbox" id='bestseller' />
@@ -170,9 +195,8 @@ const Add = ({ token }) => {
         </div>
 
         <button type="submit" className='w-28 py-3 mt-4 bg-black text-white'>ADD</button>
-
     </form>
   )
 }
 
-export default Add
+export default Add;

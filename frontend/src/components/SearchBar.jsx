@@ -15,7 +15,7 @@ const location = useLocation();
 
   return showSearch ? (
     <div className='border-t border-b bg-gray-100  text-center'>
-      <div className='inline-flex items-center justify-center border-gray-400 px-5 py-2 my-5 mx-5 rounded-full bg-white sm:w-3/4 sm:w-1/2'>
+      <div className='inline-flex items-center justify-center border-gray-400 px-5 py-2 my-5 mx-5 rounded-full bg-white sm:w-1/2'>
         <input 
           value={search} 
           onChange={(e) => setSearch(e.target.value)} 
