@@ -89,6 +89,8 @@ const ShopContextProvider = (props) => {
 
 
 
+
+
 const updateQuantity = async (itemId, size, color, quantity) => {
   // Create a deep copy of cartItems to avoid direct mutation
   let cartData = structuredClone(cartItems);
@@ -109,6 +111,8 @@ const updateQuantity = async (itemId, size, color, quantity) => {
   // Set the updated cart items
   setCartItems(cartData);
 };
+
+
     
 useEffect(() => {
     getProductsData();
@@ -116,6 +120,26 @@ useEffect(() => {
         getUserCart(token);
     }
 }, [token]);
+
+const getUserCart = async (token) => {
+
+    try {
+        const response = await axios.post(`${backendUrl}/api/cart/get`, {}, { headers: { token } });
+        if (response.data.success) {
+            setCartItems(response.data.cartData);
+        } else {
+            toast.error(response.data.message || 'Failed to fetch cart data');
+        }
+    } catch (error) {
+        console.log(error);
+        toast.error(error.message);
+        if (error.response?.status === 401) {
+            setToken(''); // Clear invalid token
+            navigate('/login'); // Redirect to login
+        }
+    }
+
+ }
 
   
 
@@ -175,23 +199,7 @@ useEffect(() => {
 
 
 
-const getUserCart = async (token) => {
-    try {
-        const response = await axios.post(`${backendUrl}/api/cart/get  `, {}, { headers: { token } });
-        if (response.data.success) {
-            setCartItems(response.data.cartData);
-        } else {
-            toast.error(response.data.message || 'Failed to fetch cart data');
-        }
-    } catch (error) {
-        console.log(error);
-        toast.error(error.message);
-        if (error.response?.status === 401) {
-            setToken(''); // Clear invalid token
-            navigate('/login'); // Redirect to login
-        }
-    }
-};
+
   
 
   
@@ -218,6 +226,9 @@ const getUserCart = async (token) => {
     token
   };
 
+
+
+
   
 
   return (
@@ -226,5 +237,12 @@ const getUserCart = async (token) => {
     </ShopContext.Provider>
   );
 };
+
+// Deep clone an object to avoid direct mutation
+function structuredClone(obj) {
+  return JSON.parse(JSON.stringify(obj));
+}
+
+
 
 export default ShopContextProvider;

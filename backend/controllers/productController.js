@@ -23,29 +23,23 @@ const addProduct = async (req, res) => {
         .json({ success: false, message: 'Missing required fields' });
     }
 
-    const images = [];
-    if (req.files) {
-      ['image1', 'image2', 'image3', 'image4'].forEach((key) => {
-        if (req.files[key] && req.files[key][0]) images.push(req.files[key][0]);
-      });
-    }
+    const image1 = req.files.image1 && req.files.image1[0];
+    const image2 = req.files.image2 && req.files.image2[0];
+    const image3 = req.files.image3 && req.files.image3[0];
+    const image4 = req.files.image4 && req.files.image4[0];
+
+    const images = [image1, image2, image3, image4].filter(
+      (item) => item !== undefined
+    );
 
     const imagesUrl = await Promise.all(
       images.map(async (item) => {
-        if (!item.path) throw new Error('Invalid file path for upload');
-        const result = await cloudinary.uploader.upload(item.path, { resource_type: 'image' });
+        let result = await cloudinary.uploader.upload(item.path, {
+          resource_type: 'image',
+        });
         return result.secure_url;
       })
     );
-
-    let parsedSizes = [];
-    let parsedColors = [];
-    try {
-      parsedSizes = sizes ? JSON.parse(sizes) : [];
-      parsedColors = colors ? JSON.parse(colors) : [];
-    } catch (error) {
-      return res.status(400).json({ success: false, message: 'Invalid JSON for sizes or colors' });
-    }
 
     const productData = {
       name,
@@ -54,49 +48,45 @@ const addProduct = async (req, res) => {
       category,
       subCategory,
       bestsellers: bestsellers === 'true',
-      sizes: parsedSizes,
-      colors: parsedColors,
+      sizes: sizes ? JSON.parse(sizes) : [], // Keep `undefined` if not provided
+      colors: colors ? JSON.parse(colors) : [], // Keep `undefined` if not provided
       stock: Number(stock),
       image: imagesUrl,
       date: Date.now(),
     };
 
+    console.log(productData);
+
     const product = new productModel(productData);
     await product.save();
 
-    res.json({ success: true, message: 'Product Added', data: product });
+    res.json({ success: true, message: 'Product Added' });
   } catch (error) {
-    console.error('Error adding product:', error);
-    res.status(500).json({ success: false, message: 'Failed to add product' });
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 // Function for listing products
 const listProducts = async (req, res) => {
   try {
+    // Fetch all products
     const products = await productModel.find({});
     res.json({ success: true, products });
   } catch (error) {
-    console.error('Error listing products:', error);
-    res.status(500).json({ success: false, message: 'Failed to fetch products' });
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 // Function for removing a product
 const removeProduct = async (req, res) => {
   try {
-    const { id } = req.body;
-    if (!id) return res.status(400).json({ success: false, message: 'Product ID is required' });
-
-    const product = await productModel.findByIdAndDelete(id);
-    if (!product) {
-      return res.status(404).json({ success: false, message: 'Product not found' });
-    }
-
+    await productModel.findByIdAndDelete(req.body.id);
     res.json({ success: true, message: 'Product Removed' });
   } catch (error) {
-    console.error('Error removing product:', error);
-    res.status(500).json({ success: false, message: 'Failed to remove product' });
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -104,7 +94,6 @@ const removeProduct = async (req, res) => {
 const singleProduct = async (req, res) => {
   try {
     const { productId } = req.body;
-    if (!productId) return res.status(400).json({ success: false, message: 'Product ID is required' });
 
     const product = await productModel.findById(productId);
     if (!product) {
@@ -115,8 +104,8 @@ const singleProduct = async (req, res) => {
 
     res.json({ success: true, product });
   } catch (error) {
-    console.error('Error fetching single product:', error);
-    res.status(500).json({ success: false, message: 'Failed to fetch product' });
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 

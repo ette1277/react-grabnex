@@ -10,8 +10,8 @@ const List = ({ token }) => {
   const fetchList = async () => {
     try {
 
-      const response = await axios.get(backendUrl + '/api/product/list')
-      if (response.data.success) {
+      const response = await axios.get(`${backendUrl}/api/product/list`)  
+            if (response.data.success) {
         setList(response.data.products.reverse());
       }
       else {
@@ -58,7 +58,7 @@ const List = ({ token }) => {
           <b>Name</b>
           <b>Category</b>
           <b>Price</b>
-          <b>Colors</b>
+          
           <b className='text-center'>Action</b>
         </div>
 

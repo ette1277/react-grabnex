@@ -18,35 +18,19 @@ const Add = ({ token }) => {
   const [subCategory, setSubCategory] = useState("Topwear");
   const [customSubCategory, setCustomSubCategory] = useState("");
   const [bestseller, setBestseller] = useState(false);
+  const [stock, setStock] = useState(0);
   const [sizes, setSizes] = useState([]);
   const [customSize, setCustomSize] = useState("");
-  const [colours, setColours] = useState([]);
-  const [customColour, setCustomColour] = useState("");
-  const [stock, setStock] = useState(0);
-
-  // New function to handle sizes and colors input
-  const handleInput = (type, value) => {
-    if (type === 'sizes') {
-      if (value) {
-        setSizes(prev => prev.includes(value) ? prev.filter(item => item !== value) : [...prev, value]);
-        return value;
-      } else {
-        return '';
-      }
-    }
-
-    if (type === 'colours') {
-      if (value) {
-        setColours(prev => prev.includes(value) ? prev.filter(item => item !== value) : [...prev, value]);
-        return value;
-      } else {
-        return '';
-      }
-    }
-  };
+  const [colors, setColors] = useState([]);
+  const [customColor, setCustomColor] = useState("");
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
+
+    if (price <= 0 || stock < 0) {
+      toast.error('Price must be greater than 0 and stock cannot be negative');
+      return;
+    }
 
     try {
       const formData = new FormData();
@@ -56,9 +40,9 @@ const Add = ({ token }) => {
       formData.append("category", customCategory || category);
       formData.append("subCategory", customSubCategory || subCategory);
       formData.append("bestseller", bestseller);
-      formData.append("sizes", JSON.stringify(customSize ? [...sizes, customSize] : sizes));
-      formData.append("colours", JSON.stringify(customColour ? [...colours, customColour] : colours));
       formData.append("stock", stock);
+      formData.append("sizes", JSON.stringify(sizes));
+      formData.append("colors", JSON.stringify(colors));
 
       image1 && formData.append("image1", image1);
       image2 && formData.append("image2", image2);
@@ -66,10 +50,8 @@ const Add = ({ token }) => {
       image4 && formData.append("image4", image4);
 
       const response = await axios.post(`${backendUrl}/api/product/add`, formData, {
-        headers: { token }, });
-
-    
-    
+        headers: { token },
+      });
 
       if (response.data.success) {
         toast.success(response.data.message);
@@ -85,11 +67,11 @@ const Add = ({ token }) => {
         setSubCategory('Topwear');
         setCustomSubCategory('');
         setBestseller(false);
+        setStock(0);
         setSizes([]);
         setCustomSize('');
-        setColours([]);
-        setCustomColour('');
-        setStock(0);
+        setColors([]);
+        setCustomColor('');
       } else {
         toast.error(response.data.message);
       }
@@ -99,7 +81,23 @@ const Add = ({ token }) => {
     }
   };
 
-  return (
+  const addSize = () => {
+    if (customSize && !sizes.includes(customSize)) {
+      setSizes((prev) => [...prev, customSize]);
+      setCustomSize("");
+    }
+  };
+
+  const addColor = () => {
+    if (customColor && !colors.includes(customColor)) {
+      setColors((prev) => [...prev, customColor]);
+      setCustomColor("");
+    }
+  };
+
+  console.log(sizes, colors);
+
+    return (
     <form onSubmit={onSubmitHandler} className='flex flex-col w-full items-start gap-3'>
         <div>
           <p className='mb-2'>Upload Image</p>
@@ -180,38 +178,44 @@ const Add = ({ token }) => {
 
         <div>
           <p className='mb-2'>Product Sizes</p>
-          <div className='flex gap-3'>
-            {['S', 'M', 'L', 'XL', 'XXL'].map(size => (
-              <div key={size} onClick={() => handleInput('sizes', size)}>
-                <p className={`${sizes.includes(size) ? "bg-pink-100" : "bg-slate-200"} px-3 py-1 cursor-pointer`}>{size}</p>
-              </div>
-            ))}
+          <div className='flex gap-2'>
+            <input 
+              type="text" 
+              placeholder="Add custom size" 
+              className='w-full px-3 py-2' 
+              value={customSize} 
+              onChange={(e) => setCustomSize(e.target.value)}
+            />
+            <button type="button" onClick={addSize} className='px-3 py-2 bg-gray-200'>Add</button>
           </div>
-          <input 
-            type="text" 
-            placeholder="Add custom size" 
-            className='w-full px-3 py-2 mt-2' 
-            value={customSize} 
-            onChange={(e) => setCustomSize(e.target.value)}
-          />
+          <ul className='mt-2'>
+            {sizes.map((size, index) => (
+              <li key={index} className='inline-block bg-gray-100 px-3 py-1 mr-2 mt-1 rounded'>
+                {size}
+              </li>
+            ))}
+          </ul>
         </div>
 
         <div>
-          <p className='mb-2'>Product Colours</p>
-          <div className='flex gap-3'>
-            {['Red', 'Blue', 'Green', 'Yellow', 'Black'].map(color => (
-              <div key={color} onClick={() => handleInput('colours', color)}>
-                <p className={`${colours.includes(color) ? "bg-pink-100" : "bg-slate-200"} px-3 py-1 cursor-pointer`}>{color}</p>
-              </div>
-            ))}
+          <p className='mb-2'>Product Colors</p>
+          <div className='flex gap-2'>
+            <input 
+              type="text" 
+              placeholder="Add custom color" 
+              className='w-full px-3 py-2' 
+              value={customColor} 
+              onChange={(e) => setCustomColor(e.target.value)}
+            />
+            <button type="button" onClick={addColor} className='px-3 py-2 bg-gray-200'>Add</button>
           </div>
-          <input 
-            type="text" 
-            placeholder="Add custom colour" 
-            className='w-full px-3 py-2 mt-2' 
-            value={customColour} 
-            onChange={(e) => setCustomColour(e.target.value)}
-          />
+          <ul className='mt-2'>
+            {colors.map((color, index) => (
+              <li key={index} className='inline-block bg-gray-100 px-3 py-1 mr-2 mt-1 rounded'>
+                {color}
+              </li>
+            ))}
+          </ul>
         </div>
 
         <div className='flex gap-2 mt-2'>
@@ -221,7 +225,7 @@ const Add = ({ token }) => {
 
         <button type="submit" className='w-28 py-3 mt-4 bg-black text-white'>ADD</button>
     </form>
-  )
-}
+  );
+};
 
 export default Add;

@@ -13,9 +13,13 @@ productRouter.post('/add',adminAuth, upload.fields([
   {name:'image4', maxCount:1}
 ]), addProduct);
 
+
+
 productRouter.delete('/remove', adminAuth, removeProduct);
 productRouter.post('/single', singleProduct);
-productRouter.get('/list', listProducts)
+productRouter.get('/list', listProducts);
+
+
 
 
 
