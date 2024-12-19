@@ -1,212 +1,182 @@
-import React, { createContext, useState , useEffect} from "react";
-import { useNavigate } from 'react-router-dom';
+import React, { createContext, useState, useEffect, useCallback } from "react";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"
-import axios from 'axios'
-import { useCallback } from "react";    
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
-
-
-
-
-// Create the context
 export const ShopContext = createContext();
 
-// Create the provider component
 const ShopContextProvider = (props) => {
-  const currency = '$';
+  const currency = "$";
   const delivery_fee = 10;
-   const backendUrl = import.meta.env.VITE_BACKEND_URL
-  const [search, setSearch] = useState('');
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+  const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [cartItems, setCartItems] = useState({});
   const [products, setProducts] = useState([]);
-  const [token, setToken] = useState('');
+  const [token, setToken] = useState("");
   const navigate = useNavigate();
 
-  
-
-  const addToCart = (itemId, size, color) => {
-      if (!itemId || !size || !color) {
-          toast.error("Select size and color.");
-          return;
-      }
-  
-      // Create a deep copy of cartItems to avoid direct mutation
-      let cartData = structuredClone(cartItems);
-  
-      // Check if the item already exists in the cart
-      if (!cartData[itemId]) {
-          // If the itemId does not exist, initialize it
-          cartData[itemId] = {};
-      }
-  
-      // Check if the color already exists for this item
-      if (!cartData[itemId][color]) {
-          // If the color does not exist, initialize it
-          cartData[itemId][color] = {};
-      }
-  
-      // Check if the size already exists for this color of the item
-      if (cartData[itemId][color][size]) {
-          // If the size already exists, increment the quantity
-          cartData[itemId][color][size] += 1;
-      } else {
-          // If the size does not exist, initialize the quantity to 1
-          cartData[itemId][color][size] = 1;
-      }
-  
-      // Set the updated cart items
-      setCartItems(cartData);
-      toast.success("Item added to cart.");
-  };
-  
-
-  const getCartCount = () => {
-    let count = 0;
-
-    for (const productId in cartItems) {
-        const colors = cartItems[productId]; // Assumed structure: itemId -> color -> size
-        for (const color in colors) {
-            if (!colors.hasOwnProperty(color)) continue; // Safeguard for unexpected properties
-
-            const sizes = colors[color];
-            for (const size in sizes) {
-                if (!sizes.hasOwnProperty(size)) continue; // Safeguard for unexpected properties
-
-                const quantity = sizes[size];
-                // Increment count by quantity, but only if quantity is valid
-                if (typeof quantity === 'number' && quantity > 0) {
-                    count += quantity;
-                }
-            }
-        }
+  // Add an item to the cart
+  const addToCart = async (itemId, size, color) => {
+    if (!size || !color) {
+      toast.error("Select size and color.");
+      return;
     }
 
-    return count;
-   
-};
+    const cartData = structuredClone(cartItems);
 
-
-
-
-
-const updateQuantity = async (itemId, size, color, quantity) => {
-  // Create a deep copy of cartItems to avoid direct mutation
-  let cartData = structuredClone(cartItems);
-
-  // Ensure itemId exists in cartData, otherwise initialize it
-  if (!cartData[itemId]) {
+    if (!cartData[itemId]) {
       cartData[itemId] = {};
-  }
+    }
 
-  // Ensure color exists in the item, otherwise initialize it
-  if (!cartData[itemId][color]) {
+    if (!cartData[itemId][color]) {
       cartData[itemId][color] = {};
-  }
+    }
 
-  // Update the quantity for the specified size and color
-  cartData[itemId][color][size] = quantity;
+    cartData[itemId][color][size] = (cartData[itemId][color][size] || 0) + 1;
 
-  // Set the updated cart items
-  setCartItems(cartData);
-};
+    setCartItems(cartData);
 
-
-    
-useEffect(() => {
-    getProductsData();
     if (token) {
-        getUserCart(token);
-    }
-}, [token]);
-
-const getUserCart = async (token) => {
-
-    try {
-        const response = await axios.post(`${backendUrl}/api/cart/get`, {}, { headers: { token } });
-        if (response.data.success) {
-            setCartItems(response.data.cartData);
-        } else {
-            toast.error(response.data.message || 'Failed to fetch cart data');
-        }
-    } catch (error) {
-        console.log(error);
+      try {
+        await axios.post(
+          `${backendUrl}/api/cart/add`,
+          { itemId, size, color },
+          { headers: { token } }
+        );
+      } catch (error) {
+        console.error(error);
         toast.error(error.message);
-        if (error.response?.status === 401) {
-            setToken(''); // Clear invalid token
-            navigate('/login'); // Redirect to login
-        }
-    }
-
- }
-
-  
-
-const getCartAmount = () => {
-  let totalAmount = 0;
-
-  for (const productId in cartItems) {
-      // Find the product by productId
-      const product = products.find(p => p._id === productId);
-
-      if (product) {
-          const colors = cartItems[productId]; // Assumed structure: itemId -> color -> size
-          for (const color in colors) {
-              if (!colors.hasOwnProperty(color)) continue; // Safeguard for unexpected properties
-              
-              const sizes = colors[color];
-              for (const size in sizes) {
-                  if (!sizes.hasOwnProperty(size)) continue; // Safeguard for unexpected properties
-
-                  const quantity = sizes[size];
-                  // Add product price * quantity to totalAmount, but only if quantity is valid
-                  if (typeof quantity === 'number' && quantity > 0) {
-                      totalAmount += product.price * quantity;
-                  }
-              }
-          }
       }
-  }
-
-  console.log(totalAmount);
-  return totalAmount;
-};
-
-const getProductsData = useCallback(async () => {
-    try {
-        const response = await axios.get(`${backendUrl}/api/product/list`);
-        if (response.data.success) {
-            setProducts(response.data.products.reverse());
-        } else {
-            toast.error(response.data.message);
-        }
-    } catch (error) {
-        console.log(error);
-        toast.error(error.message);
     }
-}, [backendUrl]);
 
-useEffect(() => {
-    getProductsData();
+    toast.success("Item added to cart.");
+  };
+
+  // Get total item count in the cart
+  const getCartCount = () => {
+    return Object.values(cartItems).reduce((total, colors) => {
+      return (
+        total +
+        Object.values(colors).reduce((colorCount, sizes) => {
+          return (
+            colorCount +
+            Object.values(sizes).reduce((sizeCount, quantity) => {
+              return sizeCount + (quantity || 0);
+            }, 0)
+          );
+        }, 0)
+      );
+    }, 0);
+  };
+
+  // Update quantity of a specific cart item
+  const updateQuantity = async (itemId, size, color, quantity) => {
+    if (quantity <= 0) {
+      toast.error("Quantity must be greater than zero.");
+      return;
+    }
+
+    const cartData = structuredClone(cartItems);
+
+    if (cartData[itemId] && cartData[itemId][color]) {
+      cartData[itemId][color][size] = quantity;
+    }
+
+    setCartItems(cartData);
+
     if (token) {
-        getUserCart(token);
+      try {
+        await axios.post(
+          `${backendUrl}/api/cart/update`,
+          { itemId, size, color, quantity },
+          { headers: { token } }
+        );
+      } catch (error) {
+        console.error(error);
+        toast.error(error.message);
+      }
     }
-}, [getProductsData, token]);
+  };
 
+  // Get the total cart amount
+  const getCartAmount = () => {
+    return Object.entries(cartItems).reduce((total, [productId, colors]) => {
+      const product = products.find((p) => p._id === productId);
 
+      if (!product) return total;
 
+      return (
+        total +
+        Object.values(colors).reduce((colorTotal, sizes) => {
+          return (
+            colorTotal +
+            Object.entries(sizes).reduce(
+              (sizeTotal, [size, quantity]) =>
+                sizeTotal + product.price * (quantity || 0),
+              0
+            )
+          );
+        }, 0)
+      );
+    }, 0);
+  };
 
+  // Fetch products data
+  const getProductsData = useCallback(async () => {
+    try {
+      const response = await axios.get(`${backendUrl}/api/product/list`);
+      if (response.data.success) {
+        setProducts(response.data.products.reverse());
+      } else {
+        toast.error(response.data.message || "Failed to fetch products.");
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error.message);
+      toast.error(error.message);
+    }
+  }, [backendUrl]);
 
+  // Fetch user cart data
+  const getUserCart = async (userToken) => {
+    try {
+      const response = await axios.post(
+        `${backendUrl}/api/cart/get`,
+        {},
+        { headers: { token: userToken } }
+      );
 
+      if (response.data.success) {
+        setCartItems(response.data.cartData);
+      }
+    } catch (error) {
+      console.error("Error fetching cart data:", error.message);
+      toast.error(error.message);
+      if (error.response?.status === 401) {
+        setToken(""); // Clear invalid token
+        navigate("/login"); // Redirect to login
+      }
+    }
+  };
 
-  
+  // Initialize data on component mount
+  useEffect(() => {
+    getProductsData();
+  }, [getProductsData]);
 
-  
+  // Handle token changes and fetch cart
+  useEffect(() => {
+    const savedToken = localStorage.getItem("token");
+    if (!token && savedToken) {
+      setToken(savedToken);
+      getUserCart(savedToken);
+    } else if (token) {
+      getUserCart(token);
+    }
+  }, [token]);
 
-
-
-
+  // Context value to be provided
   const value = {
     products,
     currency,
@@ -217,19 +187,15 @@ useEffect(() => {
     setShowSearch,
     cartItems,
     addToCart,
+    setCartItems,
     getCartCount,
     updateQuantity,
     getCartAmount,
     navigate,
     backendUrl,
     setToken,
-    token
+    token,
   };
-
-
-
-
-  
 
   return (
     <ShopContext.Provider value={value}>
@@ -238,11 +204,9 @@ useEffect(() => {
   );
 };
 
-// Deep clone an object to avoid direct mutation
+// Utility to deep clone an object
 function structuredClone(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
-
-
 
 export default ShopContextProvider;

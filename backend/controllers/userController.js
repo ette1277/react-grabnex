@@ -7,9 +7,7 @@ import userModel from "../models/userModel.js";
 const createToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '1d' }); // Add token expiry for better security
 };
-es.cookie('access_token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' })
-.status(200)
-.json({ success: true, token, message: "User logged in successfully" });
+
 
 // Route for user login
 const loginUser = async (req, res) => {
