@@ -1,13 +1,32 @@
 import orderModel from "../models/orderModel.js";
 import userModel from "../models/userModel.js";
 import Stripe from 'stripe';
+import dotenv from 'dotenv';
+dotenv.config();
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: '2022-11-15',
+});
+
+export const createOrder = async (req, res) => {
+    try {
+        const { amount, currency } = req.body;
+
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount,
+            currency,
+        });
+
+        res.status(200).json({ clientSecret: paymentIntent.client_secret });
+    } catch (error) {
+        console.error('Error creating payment intent:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
 
 const deliveryCharge = 40;
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-if (!process.env.STRIPE_SECRET_KEY) {
-    throw new Error("STRIPE_SECRET_KEY is not defined in environment variables");
-}
 
 // Placing orders using COD Method
 const placeOrder = async (req, res) => {
