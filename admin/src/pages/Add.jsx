@@ -49,6 +49,8 @@ const Add = ({ token }) => {
       image3 && formData.append("image3", image3);
       image4 && formData.append("image4", image4);
 
+      
+
       const response = await axios.post(`${backendUrl}/api/product/add`, formData, {
         headers: { token },
       });
@@ -81,6 +83,9 @@ const Add = ({ token }) => {
     }
   };
 
+  
+
+
   const addSize = () => {
     if (customSize && !sizes.includes(customSize)) {
       setSizes((prev) => [...prev, customSize]);
@@ -95,8 +100,7 @@ const Add = ({ token }) => {
     }
   };
 
-  console.log(sizes, colors);
-
+ 
     return (
     <form onSubmit={onSubmitHandler} className='flex flex-col w-full items-start gap-3'>
         <div>
