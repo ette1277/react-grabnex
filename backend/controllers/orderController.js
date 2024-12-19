@@ -4,9 +4,16 @@ import Stripe from 'stripe';
 import dotenv from 'dotenv';
 dotenv.config();
 
+
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: '2022-11-15',
+
 });
+
+console.log('Publishable Key:', process.env.STRIPE_PUBLISHABLE_KEY);
+
+
 
 export const createOrder = async (req, res) => {
     try {

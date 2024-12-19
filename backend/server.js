@@ -8,7 +8,7 @@ import productRouter from './routes/productRoute.js';
 import cartRouter from './routes/cartRoute.js';
 import orderRouter from './routes/orderRoute.js';
 
-
+  
 // App Config
 const app = express();
 const port = process.env.PORT || 4000;  // Fallback to port 4000 if env PORT is undefined
@@ -18,6 +18,8 @@ connectCloudinary();  // Invoke the function to connect to Cloudinary
 // Middleware
 app.use(express.json());
 app.use(cors());  // Assuming you want to use CORS
+
+
 
 // Start the server
 app.listen(port, () => {
