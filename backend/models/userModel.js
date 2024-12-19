@@ -14,6 +14,6 @@ const userSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now }, // Date when the user was created
 }, { minimize: false });
 
-const userModel = mongoose.models.user || mongoose.model('User', userSchema);
+const userModel = mongoose.models.user || mongoose.model('user', userSchema);
 
 export default userModel;

@@ -4,7 +4,7 @@ import NavBar from './components/NavBar';
 import SearchBar from './components/SearchBar';
 import ErrorBoundary from './components/ErrorBoundary';
 import LoadingSpinner from './components/LoadingSpinner';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Verify from './pages/Verify';
 
@@ -18,6 +18,7 @@ const Login = lazy(() => import('./pages/Login'));
 const Product = lazy(() => import('./pages/Product'));
 const Orders = lazy(() => import('./pages/Orders'));
 const PlaceOrder = lazy(() => import('./pages/PlaceOrder'));
+
 
 const App = () => {
   return (
@@ -40,6 +41,7 @@ const App = () => {
             <Route path='/orders' element={<Orders />} />
             <Route path='/place-order' element={<PlaceOrder />} />
             <Route path='/verify ' element={<Verify/>}/>
+
             {/* Add more routes as necessary */}
           </Routes>
         </Suspense>
