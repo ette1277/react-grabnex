@@ -12,7 +12,7 @@ const Login = ({setToken}) => {
         try {
             e.preventDefault();
             const response = await axios.post(backendUrl + '/api/user/admin',{email,password})
-           console.log(response);
+           console.log(response);   
             if (response.data.success) {
                 setToken(response.data.token)
             } else {
@@ -20,10 +20,14 @@ const Login = ({setToken}) => {
             }
              
         } catch (error) {
-            console.log(error);
+            console.error('API Error:', error.response  || error);
+            const errMessage = error.response ?.data ?.message || 'An error occurred';
             toast.error(error.message)
         }
     }
+    console.log(backendUrl);    
+console.log(response.data.token);    
+
 
   return (
     <div className='min-h-screen flex items-center justify-center w-full'>
