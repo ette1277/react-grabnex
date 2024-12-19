@@ -7,7 +7,7 @@ import userRouter from './routes/userRoute.js';
 import productRouter from './routes/productRoute.js';
 import cartRouter from './routes/cartRoute.js';
 import orderRouter from './routes/orderRoute.js';
-
+im
   
 // App Config
 const app = express();
@@ -37,18 +37,7 @@ app.use('/api/product',productRouter)
 app.use('/api/cart',cartRouter)
 app.use('/api/order',orderRouter)
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-const statusCode = err.statusCode || 500;
-const message = err.message || 'Internal Server Error'
-return res.statusCode(statusCode).json({
-  success: false,
-  message,
-  statusCode,
-});
 
-});
-//
 
 
 

@@ -204,9 +204,7 @@ const ShopContextProvider = (props) => {
   );
 };
 
-// Utility to deep clone an object
-function structuredClone(obj) {
-  return JSON.parse(JSON.stringify(obj));
-}
+
+
 
 export default ShopContextProvider;
