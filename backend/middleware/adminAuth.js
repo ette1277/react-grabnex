@@ -1,27 +1,26 @@
-import jwt from 'jsonwebtoken'
+import jwt from 'jsonwebtoken';
 
+const adminAuth = (req, res, next) => {
+    const authHeader = req.headers.authorization;
 
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ success: false, message: "Not Authorized" });
+    }
 
+    const token = authHeader.split(' ')[1];
 
-const adminAuth  = async (req, res, next) => {
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-
-  try {
-     const {token} = req.headers
-        if (!token) {
-          return res.json({success:false, message:"Not Authorised Login Again"})
+        // Ensure the token's email matches the admin's email
+        if (decoded.email !== process.env.ADMIN_EMAIL) {
+            return res.status(403).json({ success: false, message: "Access Denied" });
         }
 
-        const token_decode = jwt.verify(token,process.env.JWT_SECRET);
-        if(token_decode !== process.env.ADMIN_EMAIL + process.env.ADMIN_PASSWORD) {
-          return res.json({success:false, message:"Not Authorised Login Again"})
-        }
-
-        next()
-  } catch (error) {
-      console.log(error)
-      res.json({ success:false, message: error.message})
-  }
-}
+        next();
+    } catch (error) {
+        return res.status(401).json({ success: false, message: "Invalid Token" });
+    }
+};
 
 export default adminAuth;

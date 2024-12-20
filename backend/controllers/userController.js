@@ -83,21 +83,35 @@ const registerUser = async (req, res) => {
 // Route for admin login
 const adminLogin = async (req, res) => {
     try {
-        
-        const {email,password} = req.body
+        const { email, password } = req.body;
 
-        if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
-            const token = jwt.sign(email+password,process.env.JWT_SECRET);
-            res.json({success:true,token})
-        } else {
-            res.json({success:false,message:"Wrong credentials"})
+        // Validate request body
+        if (!email || !password) {
+            return res.status(400).json({ success: false, message: "Email and password are required" });
         }
 
+        // Match admin credentials
+        const isEmailMatch = email === process.env.ADMIN_EMAIL;
+        const isPasswordMatch = password === process.env.ADMIN_PASSWORD;
+
+        if (isEmailMatch && isPasswordMatch) {
+            try {
+                const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+                console.log('Generated Token:', token);
+                return res.status(200).json({ success: true, token });
+            } catch (err) {
+                console.error('JWT Error:', err.message);
+                return res.status(500).json({ success: false, message: 'Token generation failed' });
+            }
+        } else {
+            return res.status(401).json({ success: false, message: "Wrong credentials" });
+        }
     } catch (error) {
-        console.log(error);
-        res.json({ success: false, message: error.message })
+        console.error('Admin login error:', error.message);
+        res.status(500).json({ success: false, message: 'Internal server error' });
     }
-}
+};
+
 
 
 export { loginUser, registerUser, adminLogin }
