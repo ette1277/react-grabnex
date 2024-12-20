@@ -9,6 +9,7 @@ const NavBar = () => {
 
   // Navigation Links Array for Reusability
   const navLinks = [
+      
     { path: '/category/men', label: 'Men' },
     { path: '/category/women', label: 'Women' },
     { path: '/category/children', label: 'Children' },
