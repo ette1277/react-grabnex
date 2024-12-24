@@ -27,61 +27,78 @@ const Add = ({ token }) => {
   const onSubmitHandler = async (e) => {
     e.preventDefault();
 
-    if (price <= 0 || stock < 0) {
-      toast.error('Price must be greater than 0 and stock cannot be negative');
-      return;
+    // Basic validations
+    if (!token) {
+        toast.error('Unauthorized: Please log in again.');
+        return;
+    }
+    if (!name.trim() || !description.trim()) {
+        toast.error('Name and description are required.');
+        return;
+    }
+    if (isNaN(price) || price <= 0) {
+        toast.error('Price must be a valid positive number.');
+        return;
+    }
+    if (isNaN(stock) || stock < 0) {
+        toast.error('Stock must be a non-negative number.');
+        return;
     }
 
     try {
-      const formData = new FormData();
-      formData.append("name", name);
-      formData.append("description", description);
-      formData.append("price", price);
-      formData.append("category", customCategory || category);
-      formData.append("subCategory", customSubCategory || subCategory);
-      formData.append("bestseller", bestseller);
-      formData.append("stock", stock);
-      formData.append("sizes", JSON.stringify(sizes));
-      formData.append("colors", JSON.stringify(colors));
+        const formData = new FormData();
+        formData.append("name", name);
+        formData.append("description", description);
+        formData.append("price", price);
+        formData.append("category", customCategory || category);
+        formData.append("subCategory", customSubCategory || subCategory);
+        formData.append("bestseller", bestseller.toString());
+        formData.append("stock", stock);
+        formData.append("sizes", JSON.stringify(sizes));
+        formData.append("colors", JSON.stringify(colors));
 
-      image1 && formData.append("image1", image1);
-      image2 && formData.append("image2", image2);
-      image3 && formData.append("image3", image3);
-      image4 && formData.append("image4", image4);
+        image1 && formData.append("image1", image1);
+        image2 && formData.append("image2", image2);
+        image3 && formData.append("image3", image3);
+        image4 && formData.append("image4", image4);
 
-      
+        const response = await axios.post( backendUrl  + '/api/product/add', formData, {
+            headers: { token },
+        });
 
-      const response = await axios.post(`${backendUrl}/api/product/add`, formData, {
-        headers: { token },
-      });
-
-      if (response.data.success) {
-        toast.success(response.data.message);
-        setName('');
-        setDescription('');
-        setImage1(false);
-        setImage2(false);
-        setImage3(false);
-        setImage4(false);
-        setPrice('');
-        setCategory('Men');
-        setCustomCategory('');
-        setSubCategory('Topwear');
-        setCustomSubCategory('');
-        setBestseller(false);
-        setStock(0);
-        setSizes([]);
-        setCustomSize('');
-        setColors([]);
-        setCustomColor('');
-      } else {
-        toast.error(response.data.message);
-      }
+        if (response.data.success) {
+            toast.success(response.data.message);
+            // Reset form fields
+            setName('');
+            setDescription('');
+            setImage1(false);
+            setImage2(false);
+            setImage3(false);
+            setImage4(false);
+            setPrice('');
+            setCategory('Men');
+            setCustomCategory('');
+            setSubCategory('Topwear');
+            setCustomSubCategory('');
+            setBestseller(false);
+            setStock(0);
+            setSizes([]);
+            setCustomSize('');
+            setColors([]);
+            setCustomColor('');
+        } else {
+            toast.error(response.data.message);
+        }
     } catch (error) {
-      console.log(error);
-      toast.error(error.message);
+        console.error(error);
+        if (error.response && error.response.data && error.response.data.message) {
+            toast.error(error.response.data.message);
+        } else {
+            toast.error('An unexpected error occurred. Please try again.');
+        }
     }
-  };
+};
+
 
   
 
