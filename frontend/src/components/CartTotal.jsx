@@ -1,8 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { ShopContext } from '../context/ShopContext';
+//import { ShopContext } from '../context/ShopContext';
+import { CartContext } from '../context/CartContext';
 
 const CartTotal = () => {
-  const { currency, delivery_fee, getCartAmount } = useContext(ShopContext);
+ // const { currency, delivery_fee, getCartAmount } = useContext(ShopContext);
+  const { currency, delivery_fee, getCartAmount } = useContext(CartContext);
   const [cartAmount, setCartAmount] = useState(0);
 
   // Update cart amount when component mounts or ShopContext changes
@@ -13,7 +15,9 @@ const CartTotal = () => {
 
   // Format the numbers to 2 decimal places and handle the currency properly
   const formatAmount = (amount) => {
-    return amount.toFixed(2);
+    
+    const numericAmount  =  Number(amount) || 0;
+    return `£${numericAmount.toFixed(2)}`;
   };
 
   return (

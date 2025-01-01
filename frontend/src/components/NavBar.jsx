@@ -1,11 +1,39 @@
 import React, { useContext, useState } from 'react';
 import { assets } from '../assets/assets';
-import { Link, NavLink } from 'react-router-dom';
-import { ShopContext } from '../context/ShopContext';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
+//import { ShopContext } from '../context/ShopContext';
+import { ProductContext } from '../context/ProductContext';
+import { CartContext } from '../context/CartContext';
+import { AuthContext } from '../context/AuthContext';
+
+
+
 
 const NavBar = () => {
   const [visible, setVisible] = useState(false);
-  const { setShowSearch, getCartCount } = useContext(ShopContext);
+  
+  const { token, setToken, setCartItems } = useContext(AuthContext);
+  
+  const {products} = useContext(ProductContext);
+  const {getCartCount, setShowSearch, } = useContext(CartContext);
+
+ // const{setShowSearch, getCartCount, navigate, token, setToken, setCartItems} = useContext(ShopContext);
+ const navigate = useNavigate();
+
+
+
+
+const logout = () => {
+
+  navigate('/login')
+  localStorage.removeItem('token')
+  setToken('')
+  setCartItems({})
+
+
+}
+
+
 
   // Navigation Links Array for Reusability
   const navLinks = [
@@ -21,8 +49,11 @@ const NavBar = () => {
     { path: '/category/automotive-accessories', label: 'Automotive' },
   ];
 
+
+  
+
   return (
-    <nav className="flex items-center justify-between py-5 font-medium px-4 sm:px-[5vw]">
+    <nav className="flex items-center justify-between py-4 px-5 font-medium  sm:px-[5vw]  bg-white shadow-md">  
       {/* Logo Section */}
       <Link to="/">
         <img src={assets.logo} className="w-20" alt="logo" />
@@ -51,29 +82,33 @@ const NavBar = () => {
         ))}
       </ul>
 
+    
+
       {/* Icons: Search, Profile, Cart, Hamburger Menu */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-6">
         {/* Search Icon */}
-        <button onClick={() => setShowSearch(true)} aria-label="Open Search" className="focus:outline-none">
-          <img src={assets.search_icon} className="w-5 cursor-pointer" alt="Search Icon" />
-        </button>
+        <img  onClick={() => {setShowSearch(true); navigate('/collection')}} className="w-6 cursor-pointer hover:opacity-80"
+          src={assets.search_icon}  alt="Search" />
+        
 
         {/* Profile Dropdown */}
-        <div className="relative group">
-         <Link to='/login'> <img
-            className="w-5 cursor-pointer"
-            src={assets.login}
+        <div className="group relative">
+       <img onClick={() => token ? null : navigate('/login')}
+            className="w-6 cursor-pointer hover:opacity-80"
+            src={assets.profile_icon}
             alt="Profile Icon"
             aria-haspopup="true"
             aria-expanded="false"
-          /></Link>
-          <div className="hidden group-hover:block absolute right-0 pt-4 z-10">
-            <div className="flex flex-col gap-2 w-36 py-3 px-3 bg-slate-100 text-gray-500 rounded shadow-lg">
-              <Link to="/profile" className="hover:text-black transition-all">My Profile</Link>
-              <Link to="/orders" className="hover:text-black transition-all">Orders</Link>
-              <button className="hover:text-black transition-all text-left">Logout</button>
+          />
+         {token && 
+          <div className="absolute right-0 mt-2 hidden group-hover:block bg-white border rounded shadow-md">
+            <div className="flex flex-col gap-2  py-2 px-4  text-gray-700 ">
+              
+            <p className="hover:text-black transition-all">My Profile</p>  
+              <p onClick={()=>navigate("/orders")} className="cursor-pointer hover-text-black">Orders</p>
+              <p onClick={logout} className="cursor-pointer hover-text-black">Logout</p>
             </div>
-          </div>
+          </div>}
         </div>
 
         {/* Cart Icon */}

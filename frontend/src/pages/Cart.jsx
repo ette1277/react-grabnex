@@ -1,12 +1,18 @@
-import React, { useContext, useEffect, useState } from 'react'; 
-import { ShopContext } from '../context/ShopContext';
+import React, { useContext, useEffect, useState ,} from 'react'; 
+//import { ShopContext } from '../context/ShopContext';import
+import { CartContext } from '../context/CartContext';
 import { assets } from '../assets/assets';
 import CartTotal from '../components/CartTotal';
-
+import { useNavigate } from 'react-router-dom';
 
 const Cart = () => { 
-  const { products, currency, cartItems, updateQuantity, navigate} = useContext(ShopContext);
-  const [cartData, setCartData] = useState([]);
+ // const { products, currency, cartItems, updateQuantity, navigate} = useContext(ShopContext);
+ const { products, currency, cartItems, updateQuantity, } = useContext(CartContext);
+ const navigate = useNavigate();
+ const [cartData, setCartData] = useState([]);
+
+
+ 
 
   // Update cartData based on cartItems and products
   useEffect(() => {

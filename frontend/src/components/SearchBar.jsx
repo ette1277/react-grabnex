@@ -1,10 +1,20 @@
 import React, { useContext, useEffect } from 'react';
-import { ShopContext } from '../context/ShopContext';
+//import { ShopContext } from '../context/ShopContext';
 import { assets } from '../assets/assets';
 import { useLocation } from 'react-router-dom';
+import { ProductContext } from '../context/ProductContext';
+import { CartContext } from '../context/CartContext';
+import { AuthContext } from '../context/AuthContext';
 
 const SearchBar = () => {
-  const { search, setSearch, showSearch, setShowSearch } = useContext(ShopContext);
+  //const { search, setSearch, showSearch, setShowSearch } = useContext(ShopContext);
+
+  const { search, setSearch, showSearch, setShowSearch } = useContext(ProductContext);
+  const { setCartItems } = useContext(CartContext);
+  const { token } = useContext(AuthContext);
+
+
+
 
 const location = useLocation();
 

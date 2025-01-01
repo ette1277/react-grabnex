@@ -1,10 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { ShopContext } from '../context/ShopContext'
+//import { ShopContext } from '../context/ShopContext'
 import ProductItem from './ProductItem';
+import { ProductContext } from '../context/ProductContext';
 
 const NewArrivals = () => {
 
-const { products } = useContext(ShopContext);
+//const { products } = useContext(ShopContext);
+const { products } = useContext(ProductContext);
 const [newArrivals, setNewArrivals] = useState([]);
 
 useEffect(() => {

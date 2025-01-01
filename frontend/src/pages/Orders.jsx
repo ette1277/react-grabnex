@@ -1,11 +1,15 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { ShopContext } from '../context/ShopContext'
+//import { ShopContext } from '../context/ShopContext'
+import  {CartContext} from '../context/CartContext'
 import Title from '../components/Title';
 import axios from 'axios';
 
 const Orders = () => {
 
-  const { backendUrl, token , currency} = useContext(ShopContext);
+  const { token, currency, backendUrl } = useContext(CartContext);
+  
+
+  //const { backendUrl, token , currency} = useContext(ShopContext);
 
   const [orderData,setorderData] = useState([])
 

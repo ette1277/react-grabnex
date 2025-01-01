@@ -2,14 +2,18 @@ import React, { useContext, useState } from 'react'
 import Title from '../components/Title'
 import CartTotal from '../components/CartTotal'
 import { assets } from '../assets/assets'
-import { ShopContext } from '../context/ShopContext'
+//import { ShopContext } from '../context/ShopContext'
+import  { CartContext } from '../context/CartContext';
+import { ProductContext } from '../context/ProductContext';
 import axios from 'axios'
 import { toast } from 'react-toastify'
 
 const PlaceOrder = () => {
 
     const [method, setMethod] = useState('cod');
-    const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products } = useContext(ShopContext);
+    const  { cartItems, setCartItems, getCartAmount, delivery_fee } = useContext(CartContext);
+    const { products } = useContext(ProductContext);
+    //const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products } = useContext(ShopContext);
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',

@@ -7,6 +7,10 @@ import LoadingSpinner from './components/LoadingSpinner';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Verify from './pages/Verify';
+import ProtectedRoute from './components/ProtectedRoute';
+
+
+
 
 // Lazy loading pages
 const Home = lazy(() => import('./pages/Home'));
@@ -19,10 +23,11 @@ const Product = lazy(() => import('./pages/Product'));
 const Orders = lazy(() => import('./pages/Orders'));
 const PlaceOrder = lazy(() => import('./pages/PlaceOrder'));
 
-
 const App = () => {
+
+
   return (
-    <div className='px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]'>
+    <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
       <ToastContainer />
       <NavBar />
       <SearchBar />
@@ -31,18 +36,24 @@ const App = () => {
       <ErrorBoundary>
         <Suspense fallback={<LoadingSpinner />}>
           <Routes>
-            <Route path='/' element={<Home />} />
-            <Route path='/category/:type' element={<Collection />} />
-            <Route path='/about' element={<About />} />
-            <Route path='/contact' element={<Contact />} />
-            <Route path='/cart' element={<Cart />} />
-            <Route path='/login' element={<Login />} />
-            <Route path='/product/:productId' element={<Product />} />
-            <Route path='/orders' element={<Orders />} />
-            <Route path='/place-order' element={<PlaceOrder />} />
-            <Route path='/verify ' element={<Verify/>}/>
-
-            {/* Add more routes as necessary */}
+            <Route path="/" element={<Home />} />
+            <Route path="/collection" element={<Collection />} />
+            <Route path="/category/:type" element={<Collection />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/login" element={<Login />} />
+            
+        
+            <Route path="/product/:productId" element={<Product />} />
+            
+            {/* Protected routes */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/orders/:orderId" element={<Orders />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/place-order" element={<PlaceOrder />} />
+              <Route path="/verify" element={<Verify />} />
+            </Route>
           </Routes>
         </Suspense>
       </ErrorBoundary>

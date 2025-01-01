@@ -34,7 +34,7 @@ app.use(cors());  // Assuming you want to use CORS
 
 
 // Add endpoint for user routes
-
+app.use('')
 app.use('/api/user',userRouter)
 app.use('/api/product',productRouter)
 app.use('/api/cart',cartRouter)

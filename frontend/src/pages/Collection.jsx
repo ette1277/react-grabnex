@@ -1,13 +1,19 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { ShopContext } from '../context/ShopContext';
+//import { ShopContext } from '../context/ShopContext';
+import {ProductContext} from '../context/ProductContext';
 import { assets } from '../assets/assets';
 import ProductItem from '../components/ProductItem';
 import { useParams } from 'react-router-dom';
 
+
+  
+
+
 const Collection = () => {
   // Get category type from the URL using useParams
   const { type } = useParams();
-  const { products, search, showSearch } = useContext(ShopContext);
+  //const { products, search, showSearch } = useContext(ShopContext);
+  const { products, search, showSearch } = useContext(ProductContext);
   const [showFilter, setShowFilter] = useState(false);
   const [filterProducts, setFilterProducts] = useState([]);
   const [category, setCategory] = useState(type ? [type] : []);  // Initially set based on the URL parameter
@@ -22,6 +28,8 @@ const Collection = () => {
       setCategory((prev) => [...prev, e.target.value]);
     }
   };
+
+
 
   // Toggle sub-category selection
   const toggleSubCategory = (e) => {
@@ -167,5 +175,7 @@ const Collection = () => {
     </div>
   );
 };
+
+
 
 export default Collection;

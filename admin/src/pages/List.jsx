@@ -24,6 +24,8 @@ const List = ({ token }) => {
     }
   }
 
+  console.log(list) 
+
   const removeProduct = async (id) => {
     try {
 
