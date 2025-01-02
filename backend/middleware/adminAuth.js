@@ -20,7 +20,9 @@ const adminAuth = async (req, res, next) => {
         if (tokenDecode.role !== 'admin') {
             return res.status(403).json({ success: false, message: "Not Authorized. Access denied." });
         }
-
+         console.log(tokenDecode)
+         console.log(tokenDecode.role)
+         console.log(tokenDecode.role === 'admin')
         // Proceed to the next middleware if validation passes
         next();
     } catch (error) {
@@ -30,4 +32,3 @@ const adminAuth = async (req, res, next) => {
 };
 
 export default adminAuth;
-m
